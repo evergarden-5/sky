@@ -65,7 +65,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         //3、返回实体对象
         return employee;
     }
-
+    /*
+    /保存员工信息
+     */
     public Employee save(EmployeeDTO employeeDTO){
         Employee employee = new Employee();
         BeanUtils.copyProperties(employeeDTO,employee);
@@ -85,7 +87,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         return null;
     }
-
+    /*
+    * 员工页面显示
+    * */
     public PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO){
         //select * from employee limit 0,10
         PageHelper.startPage(employeePageQueryDTO.getPage(),employeePageQueryDTO.getPageSize());
@@ -95,4 +99,25 @@ public class EmployeeServiceImpl implements EmployeeService {
         return new PageResult(total,records);
     }
 
+    public void startOrStop(Integer status,Long id){
+        Employee employee=new Employee();
+        employee.setStatus(status);
+        employee.setId(id);
+        employeeMapper.update(employee);
+    }
+
+    public Employee getById(Long id){
+        Employee employee=employeeMapper.getById(id);
+        employee.setPassword("嘤嘤嘤");
+        return employee;
+    }
+    public void update(EmployeeDTO employeeDTO){
+        Employee employee=new Employee();
+        BeanUtils.copyProperties(employeeDTO,employee);
+
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(BaseContext.getCurrentId());
+
+        employeeMapper.update(employee);
+    }
 }
