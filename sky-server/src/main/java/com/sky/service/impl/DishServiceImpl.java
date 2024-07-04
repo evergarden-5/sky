@@ -57,20 +57,46 @@ public class DishServiceImpl implements DishService {
     }
 
     @Transactional
-    public void deleteBatch(List<Long>ids){
-        for( Long id :ids){
-            Dish dish=dishMapper.getById(id);
-            if(dish.getStatus()== StatusConstant.ENABLE){
+    public void deleteBatch(List<Long>ids) {
+        for (Long id : ids) {
+            Dish dish = dishMapper.getById(id);
+            if (dish.getStatus() == StatusConstant.ENABLE) {
                 throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
             }
         }
-        List<Long>setmealIds=setmealDishMapper.getSetmealIdsByDishIds(ids);
-        if(setmealIds!=null&&setmealIds.size()>0){
+        List<Long> setmealIds = setmealDishMapper.getSetmealIdsByDishIds(ids);
+        if (setmealIds != null && setmealIds.size() > 0) {
             throw new DeletionNotAllowedException(MessageConstant.DISH_BE_RELATED_BY_SETMEAL);
         }
-        for(Long id:ids){
+        for (Long id : ids) {
             dishMapper.deleteById(id);
             dishFlavorMapper.deleteByDishId(id);
         }
     }
+
+    public DishVO getByIdWithFlavor(Long id){
+        Dish dish =dishMapper.getById(id);
+        List<DishFlavor>dishFlavors=dishFlavorMapper.getByDishId(id);
+
+        DishVO dishVO=new DishVO();
+        BeanUtils.copyProperties(dish,dishVO);
+        dishVO.setFlavors(dishFlavors);
+        return dishVO;
+    }
+    public void updateWithFlavor(DishDTO dishDTO){
+        Dish dish =new Dish();
+        BeanUtils.copyProperties(dishDTO ,dish);
+        dishMapper.update(dish);
+
+        dishFlavorMapper.deleteByDishId(dishDTO.getId());
+
+        List<DishFlavor>flavors =dishDTO.getFlavors();
+        if(flavors!=null&&flavors.size()>0){
+            flavors.forEach(dishFlavor -> {
+                dishFlavor.setDishId(dishDTO.getId());
+            });
+            dishFlavorMapper.insertBatch(flavors);
+        }
+    }
+
 }
