@@ -37,4 +37,7 @@
         </where>
         order by d.create_time desc
     </select>
+    <select id="getByCategoryId" resultType="com.sky.entity.Dish" parameterType="Long">
+        select * from dish where category_id=#{categoryId} order by create_time desc
+    </select>
 </mapper>
