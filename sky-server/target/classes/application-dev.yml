@@ -11,3 +11,8 @@ sky:
     access-key-id: LTAI5tBE3mAkCYRHg4W1rCGm
     access-key-secret: bTqN15W3B21lDXTFBGclAMJvuk6tIv
     bucket-name: jerkoff
+  redis:
+    host: localhost
+    port: 6379
+    password:
+    database: 10

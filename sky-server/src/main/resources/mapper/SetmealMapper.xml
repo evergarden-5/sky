@@ -49,7 +49,7 @@
         s.category_id = c.id
         <where>
             <if test="name != null">
-                and s.name like concat('%',#{name},'%')
+                and s.name like concat('%',#{nam  e},'%')
             </if>
             <if test="status != null">
                 and s.status = #{status}
