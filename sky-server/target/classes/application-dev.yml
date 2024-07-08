@@ -12,7 +12,7 @@ sky:
     password:
     database: 10
   alioss:
-    endpoint: oss-cn-hangzhou.aliyuncs.com
+    endpoint: oss-cn-beijing.aliyuncs.com
     access-key-secret: ml7mp3xttu7VFTh4M4NxOLOdnzy9mU
     access-key-id: LTAI5tAV5PhTrg7ZeXx9X9ij
     bucket-name: jerkoff

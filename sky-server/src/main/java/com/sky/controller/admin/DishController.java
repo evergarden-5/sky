@@ -11,9 +11,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/admin/dish")
@@ -22,10 +24,17 @@ import java.util.List;
 public class DishController {
     @Autowired
     private DishService dishService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @PostMapping
     @ApiOperation("新增菜品")
     public Result save(@RequestBody DishDTO dishDTO){
         log.info("新增菜品:{}",dishDTO);
+        //如果新增了菜品，则清除菜品对应的分类的redis缓存数据
+        String key="dish_"+dishDTO.getCategoryId();
+        clearCatch("key");
         dishService.saveWithFlavor(dishDTO);
         return Result.success();
     }
@@ -42,7 +51,10 @@ public class DishController {
     @ApiOperation("菜品批量删除")
     public Result delete(@RequestParam List<Long> ids){
         log.info("菜品批量删除:{}",ids);
+        //如果批量删除了菜品，则清除所有redis缓存数据
         dishService.deleteBatch(ids);
+
+        clearCatch("category_*");
         return Result.success();
     }
 
@@ -58,6 +70,8 @@ public class DishController {
     @ApiOperation("修改菜品")
     public Result update(@RequestBody DishDTO dishDTO){
         log.info("修改菜品:{}",dishDTO);
+        //如果修改了菜品，则清除所有redis缓存数据
+        clearCatch("category_*");
         dishService.updateWithFlavor(dishDTO);
         return Result.success();
     }
@@ -65,6 +79,8 @@ public class DishController {
     @ApiOperation("菜品起售停售")
     public Result updateStatus(@PathVariable Integer status,Long id){
         log.info("将菜品售卖状态设置为:{}",status);
+        //如果修改了菜品，则清除redis缓存数据
+        clearCatch("category_*");
         dishService.startOrStop(status,id);
         return Result.success();
     }
@@ -74,5 +90,10 @@ public class DishController {
     public Result<List<Dish>>list(Long categoryId){
         List<Dish>list =dishService.list(categoryId);
         return Result.success(list);
+    }
+
+    private void clearCatch(String patterns){
+        Set keys = redisTemplate.keys(patterns);
+        redisTemplate.delete(keys);
     }
 }
