@@ -6,13 +6,16 @@ sky:
     database: sky_take_out
     username: root
     password: haofei20
-  alioss:
-    endpoint: oss-cn-beijing.aliyuncs.com
-    access-key-id: LTAI5tBE3mAkCYRHg4W1rCGm
-    access-key-secret: bTqN15W3B21lDXTFBGclAMJvuk6tIv
-    bucket-name: jerkoff
   redis:
     host: localhost
     port: 6379
     password:
     database: 10
+  alioss:
+    endpoint: oss-cn-hangzhou.aliyuncs.com
+    access-key-secret: ml7mp3xttu7VFTh4M4NxOLOdnzy9mU
+    access-key-id: LTAI5tAV5PhTrg7ZeXx9X9ij
+    bucket-name: jerkoff
+  wechat:
+    appid: wx3262712893ad3efd
+    secret: b7a76c34c9e562ebf4864186dd545dea
