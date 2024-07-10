@@ -2,6 +2,7 @@ package com.sky.controller.user;
 
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
+import com.sky.mapper.OrderMapper;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
@@ -25,6 +26,18 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
+    @PutMapping("/cancel/{id}")
+    @ApiOperation("取消订单")
+    public Result cancel(@PathVariable Long id){
+        orderService.userCancelById(id);
+        return Result.success();
+    }
+    @PostMapping("/repetition/{id}")
+    @ApiOperation("再来一单")
+    public Result repetition(@PathVariable Long id){
+        orderService.repetition(id);
+        return Result.success();
+    }
     /**
      * 查询订单详情
      *
@@ -71,6 +84,8 @@ public class OrderController {
      * @param ordersPaymentDTO
      * @return
      */
+    @Autowired
+    private OrderMapper orderMapper;
     @PutMapping("/payment")
     @ApiOperation("订单支付")
     public Result<OrderPaymentVO> payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO) throws Exception {
@@ -78,9 +93,12 @@ public class OrderController {
 
         //OrderPaymentVO orderPaymentVO = orderService.payment(ordersPaymentDTO);
         OrderPaymentVO orderPaymentVO=new OrderPaymentVO();
+
         log.info("生成预支付交易单：{}", orderPaymentVO);
+        //个人无法调用微信支付功能，采用将order的status直接改为complete的方式
+
+        orderMapper.updateStatusByNum(ordersPaymentDTO);
 
         return Result.success(orderPaymentVO);
     }
-
 }

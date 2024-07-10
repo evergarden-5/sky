@@ -20,4 +20,6 @@ public interface ShoppingCartMapper {
 
     ShoppingCart getById(ShoppingCartDTO shoppingCartDTO);
     void deleteById(ShoppingCart shoppingCart);
+
+    void insertBatch(List<ShoppingCart> shoppingCartList);
 }
