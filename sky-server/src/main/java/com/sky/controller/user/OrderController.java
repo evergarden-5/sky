@@ -1,7 +1,9 @@
 package com.sky.controller.user;
 
+import com.alibaba.fastjson.JSON;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
+import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
@@ -9,11 +11,15 @@ import com.sky.service.OrderService;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.webSocket.WebSocketServer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 订单
@@ -86,6 +92,8 @@ public class OrderController {
      */
     @Autowired
     private OrderMapper orderMapper;
+    @Autowired
+    private WebSocketServer webSocketServer;
     @PutMapping("/payment")
     @ApiOperation("订单支付")
     public Result<OrderPaymentVO> payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO) throws Exception {
@@ -98,7 +106,17 @@ public class OrderController {
         //个人无法调用微信支付功能，采用将order的status直接改为complete的方式
 
         orderMapper.updateStatusByNum(ordersPaymentDTO);
+        Orders order = orderMapper.getByNumber(ordersPaymentDTO.getOrderNumber());
+        //点击支付按钮以后通过websocketserver向前端发送支付成功信息
+        Map map=new HashMap();
+        map.put("type",1);//1表示来单提醒，2表示客户催单
+        map.put("orderId",order.getId());
+        map.put("content","订单号"+ordersPaymentDTO.getOrderNumber());
 
+        //前端需要接受json格式的字符串
+        String json = JSON.toJSONString(map);
+        //将json字符串推送到前端页面
+        webSocketServer.sendToAllClient(json);
         return Result.success(orderPaymentVO);
     }
 }
