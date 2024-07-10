@@ -5,9 +5,11 @@ import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
+import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
+import com.sky.dto.PasswordEditDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
@@ -62,6 +64,16 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         //3、返回实体对象
         return employee;
+    }
+    public void editPassword(PasswordEditDTO passwordEditDTO){
+        String password= DigestUtils.md5DigestAsHex(passwordEditDTO.getOldPassword().getBytes());
+        Long userId = BaseContext.getCurrentId();
+        Employee employee = employeeMapper.getById(userId);
+        if(password.equals(employee.getPassword())){
+            String newPassword= DigestUtils.md5DigestAsHex(passwordEditDTO.getNewPassword().getBytes());
+            employee.setPassword(newPassword);
+            employeeMapper.update(employee);
+        }
     }
     /*
     /保存员工信息

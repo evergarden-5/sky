@@ -119,4 +119,20 @@ public class OrderController {
         webSocketServer.sendToAllClient(json);
         return Result.success(orderPaymentVO);
     }
+
+    @GetMapping("/reminder/{id}")
+    public void remind(@PathVariable Long id){
+        //通过id查询到是哪一单
+        Orders order = orderMapper.getById(id);
+
+        //根据前端规定的格式建立hashmap，再转成字符串格式
+        Map map=new HashMap();//1表示来单提醒，2表示客户催单
+        map.put("type",2);
+        map.put("orderId",id);
+        map.put("content","订单号"+order.getNumber());
+
+        String json = JSON.toJSONString(map);
+        //通过websocketserver把json字符串推送到前端
+        webSocketServer.sendToAllClient(json);
+    }
 }
